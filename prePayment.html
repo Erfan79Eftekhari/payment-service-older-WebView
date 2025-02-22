@@ -11,12 +11,12 @@
           var parsedResult = JSON.parse(result);
           console.log("Payment Result Received:", parsedResult);
           document.getElementById("cardData").innerHTML = `
-                    <p>شماره کارت: ${parsedResult.CardNumber}</p>
-                    <p>مبلغ: ${parsedResult.Amount}</p>
-                    <p>شماره پیگیری: ${parsedResult.TraceNumber}</p>
-                    <p>تاریخ و زمان: ${parsedResult.DateAndTime}</p>
-                    <p>وضعیت: ${parsedResult.ResponseFa}</p>
-                `;
+            <p>شماره کارت: ${parsedResult.CardNumber}</p>
+            <p>مبلغ: ${parsedResult.Amount}</p>
+            <p>شماره پیگیری: ${parsedResult.TraceNumber}</p>
+            <p>تاریخ و زمان: ${parsedResult.DateAndTime}</p>
+            <p>وضعیت: ${parsedResult.ResponseFa}</p>
+          `;
 
           if (parsedResult.ResponseCode === 0) {
             document.getElementById("status").innerHTML =
@@ -48,14 +48,32 @@
   </head>
   <body>
     <div class="container">
-      <input type="text" id="amount" placeholder="مقدار را وارد کنید" />
-      <button onclick="handleBack()">برگشت</button>
-      <button onclick="handlePayment()">پرداخت</button>
-      <div id="cardData" class="responseContainer"></div>
-      <div id="status"></div>
-      <button id="printButton" style="display: none" onclick="printReceipt()">
-        چاپ رسید
-      </button>
+      <div class="formContainer">
+        <input
+          type="text"
+          id="amount"
+          class="input"
+          placeholder="مقدار را وارد کنید"
+        />
+        <div class="buttonContainer">
+          <button class="button backButton" onclick="handleBack()">
+            برگشت
+          </button>
+          <button class="button payButton" onclick="handlePayment()">
+            پرداخت
+          </button>
+        </div>
+        <div id="cardData" class="responseContainer"></div>
+        <div id="status"></div>
+        <button
+          id="printButton"
+          class="printButton"
+          style="display: none"
+          onclick="printReceipt()"
+        >
+          چاپ رسید
+        </button>
+      </div>
     </div>
   </body>
 </html>
