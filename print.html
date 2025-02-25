@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fa">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>چاپ رسید</title>
+    <script src="html2canvas.min.js"></script>
+    <!-- فایل html2canvas را باید به‌صورت دستی اضافه کنید -->
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+      }
+      .hidden {
+        display: none;
+      }
+      .receipt {
+        border: 1px solid #000;
+        padding: 10px;
+        margin: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <button onclick="handleBack()">بازگشت</button>
+    <button onclick="handlePrint()">چاپ</button>
+    <p id="printStatus"></p>
+
+    <div id="buyersReceipt" class="receipt hidden">
+      <h2>نسخه خریدار</h2>
+      <p>تاریخ و زمان: <span id="dateTime"></span></p>
+      <p>شماره پیگیری: <span id="traceNumber"></span></p>
+      <p>شماره کارت: <span id="cardNumber"></span></p>
+      <p>مبلغ: <span id="amount"></span> ریال</p>
+    </div>
+
+    <div id="sellersReceipt" class="receipt hidden">
+      <h2>نسخه فروشنده</h2>
+      <p>تاریخ و زمان: <span id="dateTimeSeller"></span></p>
+      <p>شماره پیگیری: <span id="traceNumberSeller"></span></p>
+      <p>شماره کارت: <span id="cardNumberSeller"></span></p>
+      <p>مبلغ: <span id="amountSeller"></span> ریال</p>
+    </div>
+
+    <script>
+      var cardData = {
+        DateAndTime: "1402/12/10 - 14:30",
+        TraceNumber: "123456789",
+        CardNumber: "**** **** **** 1234",
+        Amount: "500000",
+      };
+
+      document.getElementById("dateTime").innerText = cardData.DateAndTime;
+      document.getElementById("traceNumber").innerText = cardData.TraceNumber;
+      document.getElementById("cardNumber").innerText = cardData.CardNumber;
+      document.getElementById("amount").innerText = cardData.Amount;
+
+      document.getElementById("dateTimeSeller").innerText =
+        cardData.DateAndTime;
+      document.getElementById("traceNumberSeller").innerText =
+        cardData.TraceNumber;
+      document.getElementById("cardNumberSeller").innerText =
+        cardData.CardNumber;
+      document.getElementById("amountSeller").innerText = cardData.Amount;
+
+      function handlePrint() {
+        document.getElementById("buyersReceipt").classList.remove("hidden");
+        html2canvas(document.getElementById("buyersReceipt")).then((canvas) => {
+          var buyerBase64Image = canvas.toDataURL("image/png").split(",")[1];
+          var buyerResponse = JSON.parse(
+            window.Android.SaveReceiptWithVerification(buyerBase64Image)
+          );
+
+          if (!buyerResponse.isPrinted) {
+            document.getElementById("printStatus").innerText =
+              "خطا در چاپ نسخه خریدار";
+            return;
+          }
+
+          setTimeout(() => {
+            document.getElementById("buyersReceipt").classList.add("hidden");
+            document
+              .getElementById("sellersReceipt")
+              .classList.remove("hidden");
+            html2canvas(document.getElementById("sellersReceipt")).then(
+              (canvas) => {
+                var sellerBase64Image = canvas
+                  .toDataURL("image/png")
+                  .split(",")[1];
+                var sellerResponse = JSON.parse(
+                  window.Android.SaveReceiptWithVerification(sellerBase64Image)
+                );
+
+                if (sellerResponse.isPrinted) {
+                  document.getElementById("printStatus").innerText =
+                    "چاپ هر دو نسخه با موفقیت انجام شد";
+                } else {
+                  document.getElementById("printStatus").innerText =
+                    "خطا در چاپ نسخه فروشنده";
+                }
+                document
+                  .getElementById("sellersReceipt")
+                  .classList.add("hidden");
+              }
+            );
+          }, 1000);
+        });
+      }
+
+      function handleBack() {
+        window.location.href = "paymentPage.html";
+      }
+    </script>
+  </body>
+</html>
