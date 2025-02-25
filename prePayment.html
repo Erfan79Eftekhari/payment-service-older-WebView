@@ -22,9 +22,6 @@
             document.getElementById("status").innerHTML =
               "<div class='successMessage'>تراکنش موفق</div>";
             document.getElementById("printButton").style.display = "block";
-            document.getElementById("printButton").onclick = function () {
-              navigateToPrint(parsedResult);
-            };
           } else {
             document.getElementById("status").innerHTML =
               "<div class='errorMessage'>تراکنش ناموفق</div>";
@@ -44,9 +41,8 @@
         window.Android.CancelOperation();
       }
 
-      function navigateToPrint(cardData) {
-        const queryParams = new URLSearchParams(cardData).toString();
-        window.location.href = `/print?${queryParams}`;
+      function printReceipt() {
+        alert("رسید در حال چاپ است...");
       }
     </script>
   </head>
@@ -69,7 +65,12 @@
         </div>
         <div id="cardData" class="responseContainer"></div>
         <div id="status"></div>
-        <button id="printButton" class="printButton" style="display: none">
+        <button
+          id="printButton"
+          class="printButton"
+          style="display: none"
+          onclick="printReceipt()"
+        >
           چاپ رسید
         </button>
       </div>
