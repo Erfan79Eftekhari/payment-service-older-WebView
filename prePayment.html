@@ -18,7 +18,10 @@
             <p>وضعیت: ${parsedResult.ResponseFa}</p>
           `;
 
-          if (parsedResult.ResponseCode === 0) {
+          if (
+            parsedResult.ResponseCode === 0 ||
+            parsedResult.ResponseCode === 100
+          ) {
             document.getElementById("status").innerHTML =
               "<div class='successMessage'>تراکنش موفق</div>";
             document.getElementById("printButton").style.display = "block";
@@ -42,7 +45,29 @@
       }
 
       function printReceipt() {
-        alert("رسید در حال چاپ است...");
+        try {
+          // دریافت اطلاعات پرداخت از المان HTML
+          const cardDataElement = document.getElementById("cardData");
+          const cardData = {
+            cardNumber:
+              cardDataElement.querySelector("p:nth-child(1)").textContent,
+            amount: cardDataElement.querySelector("p:nth-child(2)").textContent,
+            traceNumber:
+              cardDataElement.querySelector("p:nth-child(3)").textContent,
+            dateTime:
+              cardDataElement.querySelector("p:nth-child(4)").textContent,
+            status: cardDataElement.querySelector("p:nth-child(5)").textContent,
+          };
+
+          // ذخیره اطلاعات در localStorage
+          localStorage.setItem("paymentData", JSON.stringify(cardData));
+
+          // هدایت کاربر به صفحه print.html
+          window.location.href = "print.html";
+        } catch (error) {
+          console.error("خطا در ارسال اطلاعات به صفحه چاپ:", error);
+          alert("خطا در ارسال اطلاعات به صفحه چاپ");
+        }
       }
     </script>
   </head>
@@ -65,12 +90,7 @@
         </div>
         <div id="cardData" class="responseContainer"></div>
         <div id="status"></div>
-        <button
-          id="printButton"
-          class="printButton"
-          style="display: none"
-          onclick="printReceipt()"
-        >
+        <button id="printButton" class="printButton" onclick="printReceipt()">
           چاپ رسید
         </button>
       </div>
