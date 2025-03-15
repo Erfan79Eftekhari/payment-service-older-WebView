@@ -197,108 +197,108 @@
       }
 
       // عملیات چاپ
-      async function handlePrint() {
-        if (isPrinting) return;
+      // async function handlePrint() {
+      //   if (isPrinting) return;
 
-        isPrinting = true;
-        document.getElementById("printButton").textContent = "در حال چاپ...";
-        document.getElementById("printButton").disabled = true;
-        document.getElementById("backButton").disabled = true;
+      //   isPrinting = true;
+      //   document.getElementById("printButton").textContent = "در حال چاپ...";
+      //   document.getElementById("printButton").disabled = true;
+      //   document.getElementById("backButton").disabled = true;
 
-        // پاک کردن پیام قبلی
-        document.getElementById("messageContainer").style.display = "none";
+      //   // پاک کردن پیام قبلی
+      //   document.getElementById("messageContainer").style.display = "none";
 
-        try {
-          // چاپ نسخه خریدار
-          let buyersReceipt = document.querySelector(".buyersReceipt");
-          buyersReceipt.classList.remove("displaynone");
+      //   try {
+      //     // چاپ نسخه خریدار
+      //     let buyersReceipt = document.querySelector(".buyersReceipt");
+      //     buyersReceipt.classList.remove("displaynone");
 
-          const buyerCanvas = await html2canvas(buyersReceipt, { scale: 2 });
-          const buyerBase64Image = buyerCanvas
-            .toDataURL("image/png")
-            .split(",")[1];
+      //     const buyerCanvas = await html2canvas(buyersReceipt, { scale: 2 });
+      //     const buyerBase64Image = buyerCanvas
+      //       .toDataURL("image/png")
+      //       .split(",")[1];
 
-          try {
-            const buyerResult =
-              await window.Android.SaveReceiptWithVerification(
-                buyerBase64Image
-              );
-            const buyerResponse = JSON.parse(buyerResult);
-            buyerPrintStatus = buyerResponse.isPrinted;
-            console.log("buyersResponse:", buyerResponse.isPrinted);
+      //     try {
+      //       const buyerResult =
+      //         await window.Android.SaveReceiptWithVerification(
+      //           buyerBase64Image
+      //         );
+      //       const buyerResponse = JSON.parse(buyerResult);
+      //       buyerPrintStatus = buyerResponse.isPrinted;
+      //       console.log("buyersResponse:", buyerResponse.isPrinted);
 
-            if (!buyerResponse.isPrinted) {
-              setPrintMessage(
-                buyerResponse.Message || "خطا در چاپ نسخه خریدار"
-              );
-              buyersReceipt.classList.add("displaynone");
-              isPrinting = false;
-              document.getElementById("printButton").textContent = "پرینت";
-              document.getElementById("printButton").disabled = false;
-              document.getElementById("backButton").disabled = false;
-              updatePrintStatus();
-              return;
-            }
-          } catch (error) {
-            console.error("Error in buyer receipt printing:", error);
-            buyerPrintStatus = false;
-            setPrintMessage("خطا در چاپ نسخه خریدار");
-            buyersReceipt.classList.add("displaynone");
-            isPrinting = false;
-            document.getElementById("printButton").textContent = "پرینت";
-            document.getElementById("printButton").disabled = false;
-            document.getElementById("backButton").disabled = false;
-            updatePrintStatus();
-            return;
-          }
+      //       if (!buyerResponse.isPrinted) {
+      //         setPrintMessage(
+      //           buyerResponse.Message || "خطا در چاپ نسخه خریدار"
+      //         );
+      //         buyersReceipt.classList.add("displaynone");
+      //         isPrinting = false;
+      //         document.getElementById("printButton").textContent = "پرینت";
+      //         document.getElementById("printButton").disabled = false;
+      //         document.getElementById("backButton").disabled = false;
+      //         updatePrintStatus();
+      //         return;
+      //       }
+      //     } catch (error) {
+      //       console.error("Error in buyer receipt printing:", error);
+      //       buyerPrintStatus = false;
+      //       setPrintMessage("خطا در چاپ نسخه خریدار");
+      //       buyersReceipt.classList.add("displaynone");
+      //       isPrinting = false;
+      //       document.getElementById("printButton").textContent = "پرینت";
+      //       document.getElementById("printButton").disabled = false;
+      //       document.getElementById("backButton").disabled = false;
+      //       updatePrintStatus();
+      //       return;
+      //     }
 
-          // تأخیر کوتاه بین دو چاپ
-          await new Promise((resolve) => setTimeout(resolve, 1000));
+      //     // تأخیر کوتاه بین دو چاپ
+      //     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-          // چاپ نسخه فروشنده
-          buyersReceipt.classList.add("displaynone");
-          let sellersReceipt = document.querySelector(".sellersReceipt");
-          sellersReceipt.classList.remove("displaynone");
+      //     // چاپ نسخه فروشنده
+      //     buyersReceipt.classList.add("displaynone");
+      //     let sellersReceipt = document.querySelector(".sellersReceipt");
+      //     sellersReceipt.classList.remove("displaynone");
 
-          const sellerCanvas = await html2canvas(sellersReceipt, { scale: 2 });
-          const sellerBase64Image = sellerCanvas
-            .toDataURL("image/png")
-            .split(",")[1];
+      //     const sellerCanvas = await html2canvas(sellersReceipt, { scale: 2 });
+      //     const sellerBase64Image = sellerCanvas
+      //       .toDataURL("image/png")
+      //       .split(",")[1];
 
-          try {
-            const sellerResult =
-              await window.Android.SaveReceiptWithVerification(
-                sellerBase64Image
-              );
-            const sellerResponse = JSON.parse(sellerResult);
-            sellerPrintStatus = sellerResponse.isPrinted;
-            console.log("sellersResponse:", sellerResponse.isPrinted);
+      //     try {
+      //       const sellerResult =
+      //         await window.Android.SaveReceiptWithVerification(
+      //           sellerBase64Image
+      //         );
+      //       const sellerResponse = JSON.parse(sellerResult);
+      //       sellerPrintStatus = sellerResponse.isPrinted;
+      //       console.log("sellersResponse:", sellerResponse.isPrinted);
 
-            if (sellerResponse.isPrinted) {
-              setPrintMessage("چاپ هر دو نسخه با موفقیت انجام شد", true);
-            } else {
-              setPrintMessage(
-                sellerResponse.Message || "خطا در چاپ نسخه فروشنده"
-              );
-            }
-          } catch (error) {
-            console.error("Error in seller receipt printing:", error);
-            sellerPrintStatus = false;
-            setPrintMessage("خطا در چاپ نسخه فروشنده");
-          }
+      //       if (sellerResponse.isPrinted) {
+      //         setPrintMessage("چاپ هر دو نسخه با موفقیت انجام شد", true);
+      //       } else {
+      //         setPrintMessage(
+      //           sellerResponse.Message || "خطا در چاپ نسخه فروشنده"
+      //         );
+      //       }
+      //     } catch (error) {
+      //       console.error("Error in seller receipt printing:", error);
+      //       sellerPrintStatus = false;
+      //       setPrintMessage("خطا در چاپ نسخه فروشنده");
+      //     }
 
-          sellersReceipt.classList.add("displaynone");
-        } catch (error) {
-          console.error("Error during printing:", error);
-          setPrintMessage("خطا در فرآیند چاپ");
-        } finally {
-          isPrinting = false;
-          document.getElementById("printButton").textContent = "پرینت";
-          document.getElementById("printButton").disabled = false;
-          document.getElementById("backButton").disabled = false;
-          updatePrintStatus();
-        }
-      }
+      //     sellersReceipt.classList.add("displaynone");
+      //   } catch (error) {
+      //     console.error("Error during printing:", error);
+      //     setPrintMessage("خطا در فرآیند چاپ");
+      //   } finally {
+      //     isPrinting = false;
+      //     document.getElementById("printButton").textContent = "پرینت";
+      //     document.getElementById("printButton").disabled = false;
+      //     document.getElementById("backButton").disabled = false;
+      //     updatePrintStatus();
+      //   }
+      // }
     </script>
   </body>
 </html>
