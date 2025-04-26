@@ -46,7 +46,6 @@
 
       function printReceipt() {
         try {
-          // دریافت اطلاعات پرداخت از المان HTML
           const cardDataElement = document.getElementById("cardData");
           const cardData = {
             cardNumber:
@@ -59,16 +58,29 @@
             status: cardDataElement.querySelector("p:nth-child(5)").textContent,
           };
 
-          // ذخیره اطلاعات در localStorage
           localStorage.setItem("paymentData", JSON.stringify(cardData));
-
-          // هدایت کاربر به صفحه print.html
           window.location.href = "print.html";
         } catch (error) {
           console.error("خطا در ارسال اطلاعات به صفحه چاپ:", error);
           alert("خطا در ارسال اطلاعات به صفحه چاپ");
         }
       }
+
+      window.OnRequestAck = function () {
+        setTimeout(function () {
+          if (
+            window.Android &&
+            typeof window.Android.onRecieveAckNak === "function"
+          ) {
+            console.log("i send ACK");
+            window.Android.onRecieveAckNak(true);
+          } else {
+            console.warn(
+              "Android interface or onRecieveAckNak method not available"
+            );
+          }
+        }, 2000); // simulate async work
+      };
     </script>
   </head>
   <body>
