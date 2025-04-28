@@ -72,8 +72,8 @@
             window.Android &&
             typeof window.Android.onRecieveAckNak === "function"
           ) {
-            console.log("i send NAK");
-            window.Android.onRecieveAckNak(false);
+            console.log("i send ACK");
+            window.Android.onRecieveAckNak(ture);
           } else {
             console.warn(
               "Android interface or onRecieveAckNak method not available"
