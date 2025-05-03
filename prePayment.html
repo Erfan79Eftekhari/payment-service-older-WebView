@@ -6,17 +6,21 @@
     <title>پرداخت</title>
     <link rel="stylesheet" href="prePayment.css" />
     <script>
+      // وضعیت‌های اسکن
+      var scanOccurred = false;
+      var scanResult = "";
+
       function onPaymentResult(result) {
         try {
           var parsedResult = JSON.parse(result);
           console.log("Payment Result Received:", parsedResult);
           document.getElementById("cardData").innerHTML = `
-            <p>شماره کارت: ${parsedResult.CardNumber}</p>
-            <p>مبلغ: ${parsedResult.Amount}</p>
-            <p>شماره پیگیری: ${parsedResult.TraceNumber}</p>
-            <p>تاریخ و زمان: ${parsedResult.DateAndTime}</p>
-            <p>وضعیت: ${parsedResult.ResponseFa}</p>
-          `;
+          <p>شماره کارت: ${parsedResult.CardNumber}</p>
+          <p>مبلغ: ${parsedResult.Amount}</p>
+          <p>شماره پیگیری: ${parsedResult.TraceNumber}</p>
+          <p>تاریخ و زمان: ${parsedResult.DateAndTime}</p>
+          <p>وضعیت: ${parsedResult.ResponseFa}</p>
+        `;
 
           if (
             parsedResult.ResponseCode === 0 ||
@@ -37,11 +41,20 @@
       function handlePayment() {
         var amount = document.getElementById("amount").value;
         console.log("پرداخت با مقدار:", amount);
-        window.Android.DoPayment(Number(amount));
+        if (window.Android && typeof window.Android.DoPayment === "function") {
+          window.Android.DoPayment(Number(amount));
+        } else {
+          alert("پرداخت در دسترس نیست");
+        }
       }
 
       function handleBack() {
-        window.Android.CancelOperation();
+        if (
+          window.Android &&
+          typeof window.Android.CancelOperation === "function"
+        ) {
+          window.Android.CancelOperation();
+        }
       }
 
       function printReceipt() {
@@ -81,6 +94,62 @@
           }
         }, 2000); // simulate async work
       };
+
+      // --- اسکن بارکد ---
+      function handleScan() {
+        scanResult = "";
+        scanOccurred = false;
+        updateScanResult();
+        try {
+          if (
+            window.Android &&
+            typeof window.Android.DoScanHID === "function"
+          ) {
+            window.Android.DoScanHID(5000);
+          } else {
+            alert("اسکنر بارکد در دسترس نیست");
+          }
+        } catch (error) {
+          console.error("Error in scan process:", error);
+        }
+      }
+
+      window.onScanResult = function (success, barcode) {
+        try {
+          if (success) {
+            console.log("Barcode Recieved:", barcode);
+            scanResult = barcode || "";
+            scanOccurred = true;
+          } else {
+            console.log("Something went wrong: ", barcode);
+            scanResult = "";
+            scanOccurred = true;
+          }
+        } catch (error) {
+          console.error("Failed to get scan result ", error);
+          scanResult = "";
+          scanOccurred = true;
+        }
+        updateScanResult();
+      };
+
+      function updateScanResult() {
+        var scanDiv = document.getElementById("scanResultContainer");
+        if (!scanDiv) return;
+        if (scanOccurred) {
+          scanDiv.style.display = "block";
+          scanDiv.querySelector("p").textContent =
+            scanResult !== "" ? scanResult : "چیزی اسکن نشد";
+        } else {
+          scanDiv.style.display = "none";
+          scanDiv.querySelector("p").textContent = "";
+        }
+      }
+
+      window.onload = function () {
+        // برای بار اول مخفی
+        updateScanResult();
+      };
     </script>
   </head>
   <body>
@@ -99,7 +168,20 @@
           <button class="button payButton" onclick="handlePayment()">
             پرداخت
           </button>
+          <button class="button scanButton" onclick="handleScan()">
+            اسکن بارکد
+          </button>
         </div>
+        <!-- نتیجه اسکن -->
+        <div
+          id="scanResultContainer"
+          class="scanResultContainer"
+          style="display: none"
+        >
+          <h3>نتیجه اسکن:</h3>
+          <p></p>
+        </div>
+        <!-- نتیجه پرداخت -->
         <div id="cardData" class="responseContainer"></div>
         <div id="status"></div>
         <button
